@@ -1,7 +1,7 @@
 ﻿var lines = File.ReadAllLines(@"C:\Users\aman-agrawal\Code\AoC\2022\Day5-2022\Input.txt").ToList();
 
 var stackLines = lines.TakeWhile(x => x != string.Empty).ToArray();
-var arrangementSteps = lines.Except(stackLines).Where(x => x != string.Empty).ToArray();
+var arrangementSteps = File.ReadAllLines(@"C:\Users\aman-agrawal\Code\AoC\2022\Day5-2022\Steps.txt").ToArray();//lines.Except(stackLines).Where(x => x != string.Empty).ToArray();
 
 var stacks = new Dictionary<int, Stack<string>>();
 var lateralIndex = 0;
@@ -46,7 +46,7 @@ for (var i = 0; i < arrangementSteps.Length; i++)
 
     while (numberOfItemsToMove > 0)
     {
-        if (sourceStack.Count > 1)
+        if (sourceStack.Count > 0)
             destinationStack.Push(sourceStack.Pop());
 
         --numberOfItemsToMove;
