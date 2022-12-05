@@ -3,10 +3,7 @@
 var lines = File.ReadAllLines(@"C:\Users\aman-agrawal\Code\AoC\2022\Day5-2022\Input.txt").ToList();
 
 var stackLines = lines.TakeWhile(x => x != string.Empty).ToArray();
-var arrangementSteps = File.ReadAllLines(@"C:\Users\aman-agrawal\Code\AoC\2022\Day5-2022\Steps.txt").ToArray();
-
-//lines.Except(stackLines).Where(x => x != string.Empty).ToArray();
-
+var arrangementSteps = lines.Skip(stackLines.Count()).Where(x => x != string.Empty).ToArray();
 var stacks = ParseStacks(stackLines);
 
 //ArrangeStacksPart1(arrangementSteps, stacks);
