@@ -1,0 +1,1 @@
+﻿var lines = File.ReadAllLines(@"C:\Code\AoC\2022\Day7-2022\Input-Large.txt");
