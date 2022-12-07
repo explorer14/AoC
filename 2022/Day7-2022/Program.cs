@@ -28,6 +28,13 @@ for (var x = 0; x < lines.Length; x++)
     }
 }
 
+foreach (var d in t.Dirs.First().Dirs)
+{
+    Console.WriteLine($"{d.Name} => {d.TotalDirSize}");
+}
+
+Console.WriteLine($"{t.Dirs.First().Name} => {t.Dirs.First().TotalDirSize}");
+
 public class Thing
 {
     public Thing()
@@ -99,7 +106,7 @@ public class Dir
 
     public void AddDir(string dir, bool? isCurrent = null) => Dirs.Add(new Dir { Name = dir, Parent = this, IsCurrent = isCurrent.GetValueOrDefault() });
 
-    public int TotalDirSize => Files.Sum(x => x.Size);
+    public int TotalDirSize => Files.Sum(x => x.Size) + Dirs.Sum(x => x.TotalDirSize);
 }
 
 public class MyFile
