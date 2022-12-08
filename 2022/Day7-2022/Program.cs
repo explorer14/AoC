@@ -18,8 +18,7 @@ for (var x = 0; x < lines.Length; x++)
 
     if (lines[x].Contains("dir"))
     {
-        t.AddDirUnder(t.Current, lines[x].Split(" ",
-    StringSplitOptions.RemoveEmptyEntries)[1]);
+        t.AddDirUnder(t.Current, lines[x].Split(" ", StringSplitOptions.RemoveEmptyEntries)[1]);
     }
 
     if (Regex.IsMatch(lines[x], fdPattern))
@@ -30,7 +29,6 @@ for (var x = 0; x < lines.Length; x++)
     }
 }
 
-Console.WriteLine(t.Dirs.First().TotalDirSize);
 var dirSz = new List<(string DirName, int Size)>();
 
 foreach (var d in t.Dirs.First().Dirs)
@@ -38,12 +36,18 @@ foreach (var d in t.Dirs.First().Dirs)
     GetSize(d, dirSz);
 }
 
-//foreach (var item in dirSz)
-//{
-//    Console.WriteLine($"{item.DirName} -> {item.Size}");
-//}
-
 Console.WriteLine(dirSz.Where(x => x.Size <= 100_000).Sum(x => x.Size));
+
+// Part 2
+var totalAvailableSpace = 70000000;
+var minSpaceNeeded = 30000000;
+
+var unusedSpace = totalAvailableSpace - t.Dirs.First().TotalDirSize;
+var targetCleanupSize = minSpaceNeeded - unusedSpace;
+
+Console.WriteLine(dirSz.OrderBy(x => x.Size).Where(x => x.Size >= targetCleanupSize).FirstOrDefault().Size);
+
+// End Part 2
 
 void GetSize(Dir? d, List<(string DirName, int Size)>? list)
 {
@@ -67,8 +71,7 @@ public class Dir
     public void AddDir(string dir, bool? isCurrent = null) => Dirs.Add(new Dir
     {
         Name = dir,
-        Parent =
-    this,
+        Parent = this,
         IsCurrent = isCurrent.GetValueOrDefault()
     });
 
@@ -102,15 +105,19 @@ public class Thing
     }
 
     public void AddDirUnder(Dir parentDir, string childDir)
-    { parentDir.AddDir(childDir); }
+    {
+        parentDir.AddDir(childDir);
+    }
 
     public void AddFileTo(Dir dir, string file, int size)
-    { dir.AddFile(file, size); }
+    {
+        dir.AddFile(file, size);
+    }
 
     public void AddFileToRoot(string file, int size)
     {
-        var root = Dirs.FirstOrDefault(x => x.Parent
-    == null); root.AddFile(file, size);
+        var root = Dirs.FirstOrDefault(x => x.Parent == null);
+        root.AddFile(file, size);
     }
 
     public void ChangeDirTo(string dir)
