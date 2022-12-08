@@ -1,7 +1,4 @@
-﻿using Day7_2022;
-using System.Collections.Generic;
-using System.Net;
-using System.Text.RegularExpressions;
+﻿using System.Text.RegularExpressions;
 
 var lines = File.ReadAllLines(@"C:\Users\aman-agrawal\Code\AoC\2022\Day7-2022\Input-Large.txt");
 
