@@ -1,7 +1,9 @@
-﻿using System.Net;
+﻿using Day7_2022;
+using System.Collections.Generic;
+using System.Net;
 using System.Text.RegularExpressions;
 
-var lines = File.ReadAllLines(@"F:\Code\AoC\2022\Day7-2022\Input.txt");
+var lines = File.ReadAllLines(@"C:\Users\aman-agrawal\Code\AoC\2022\Day7-2022\Input-Large.txt");
 
 var totalSize = 0;
 var fdPattern = @"^[0-9]+\s{1}\w+\.{0,1}\w{0,3}$";
@@ -19,21 +21,68 @@ for (var x = 0; x < lines.Length; x++)
 
     if (lines[x].Contains("dir"))
     {
-        t.AddDirUnder(t.Current, lines[x].Split(" ", StringSplitOptions.RemoveEmptyEntries)[1]);
+        t.AddDirUnder(t.Current, lines[x].Split(" ",
+    StringSplitOptions.RemoveEmptyEntries)[1]);
     }
 
     if (Regex.IsMatch(lines[x], fdPattern))
     {
-        t.AddFileTo(t.Current, lines[x].Split(" ", StringSplitOptions.RemoveEmptyEntries)[1], int.Parse(lines[x].Split(" ", StringSplitOptions.RemoveEmptyEntries)[0]));
+        t.AddFileTo(t.Current,
+            lines[x].Split(" ", StringSplitOptions.RemoveEmptyEntries)[1],
+            int.Parse(lines[x].Split(" ", StringSplitOptions.RemoveEmptyEntries)[0]));
     }
 }
 
+Console.WriteLine(t.Dirs.First().TotalDirSize);
+var dirSz = new List<(string DirName, int Size)>();
+
 foreach (var d in t.Dirs.First().Dirs)
 {
-    Console.WriteLine($"{d.Name} => {d.TotalDirSize}");
+    GetSize(d, dirSz);
 }
 
-Console.WriteLine($"{t.Dirs.First().Name} => {t.Dirs.First().TotalDirSize}");
+//foreach (var item in dirSz)
+//{
+//    Console.WriteLine($"{item.DirName} -> {item.Size}");
+//}
+
+Console.WriteLine(dirSz.Where(x => x.Size <= 100_000).Sum(x => x.Size));
+
+void GetSize(Dir? d, List<(string DirName, int Size)>? list)
+{
+    list.Add((d.Name, d.TotalDirSize));
+
+    foreach (var dnext in d.Dirs)
+    {
+        GetSize(dnext, list);
+    }
+}
+
+public class Dir
+{
+    public List<Dir> Dirs { get; set; } = new();
+    public List<MyFile> Files { get; set; } = new();
+    public bool IsCurrent { get; set; }
+    public string Name { get; set; }
+    public Dir? Parent { get; set; }
+    public int TotalDirSize => Files.Sum(x => x.Size) + Dirs.Sum(x => x.TotalDirSize);
+
+    public void AddDir(string dir, bool? isCurrent = null) => Dirs.Add(new Dir
+    {
+        Name = dir,
+        Parent =
+    this,
+        IsCurrent = isCurrent.GetValueOrDefault()
+    });
+
+    public void AddFile(string file, int size) => Files.Add(new MyFile { Name = file, Size = size });
+}
+
+public class MyFile
+{
+    public string Name { get; set; }
+    public int Size { get; set; }
+}
 
 public class Thing
 {
@@ -43,6 +92,8 @@ public class Thing
         Dirs.Add(root);
         Current = root;
     }
+
+    public Dir Current { get; private set; }
 
     public List<Dir> Dirs { get; set; } = new();
     public List<MyFile> Files { get; set; } = new();
@@ -54,19 +105,15 @@ public class Thing
     }
 
     public void AddDirUnder(Dir parentDir, string childDir)
-    {
-        parentDir.AddDir(childDir);
-    }
+    { parentDir.AddDir(childDir); }
+
+    public void AddFileTo(Dir dir, string file, int size)
+    { dir.AddFile(file, size); }
 
     public void AddFileToRoot(string file, int size)
     {
-        var root = Dirs.FirstOrDefault(x => x.Parent == null);
-        root.AddFile(file, size);
-    }
-
-    public void AddFileTo(Dir dir, string file, int size)
-    {
-        dir.AddFile(file, size);
+        var root = Dirs.FirstOrDefault(x => x.Parent
+    == null); root.AddFile(file, size);
     }
 
     public void ChangeDirTo(string dir)
@@ -89,28 +136,4 @@ public class Thing
             }
         }
     }
-
-    public Dir Current { get; private set; }
-}
-
-public class Dir
-{
-    public string Name { get; set; }
-    public bool IsCurrent { get; set; }
-    public Dir? Parent { get; set; }
-    public List<MyFile> Files { get; set; } = new();
-
-    public List<Dir> Dirs { get; set; } = new();
-
-    public void AddFile(string file, int size) => Files.Add(new MyFile { Name = file, Size = size });
-
-    public void AddDir(string dir, bool? isCurrent = null) => Dirs.Add(new Dir { Name = dir, Parent = this, IsCurrent = isCurrent.GetValueOrDefault() });
-
-    public int TotalDirSize => Files.Sum(x => x.Size) + Dirs.Sum(x => x.TotalDirSize);
-}
-
-public class MyFile
-{
-    public string Name { get; set; }
-    public int Size { get; set; }
 }
