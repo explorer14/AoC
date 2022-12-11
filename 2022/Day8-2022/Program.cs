@@ -60,7 +60,7 @@ for (var x = 1; x < rows - 1; x++)
         // check below
         for (var t = x + 1; t < rows; t++)
         {
-            currentTreeVisibleBelow &= treeGrid[t, x] < currentTreeHeight;
+            currentTreeVisibleBelow &= treeGrid[t, y] < currentTreeHeight;
 
             if (!currentTreeVisibleBelow)
                 break;
