@@ -1,4 +1,6 @@
-﻿var lines = File.ReadAllLines(@"C:\Users\aman-agrawal\Code\AoC\2022\Day8-2022\Input-Large.txt");
+﻿using System.Diagnostics;
+
+var lines = File.ReadAllLines(@"C:\Users\aman-agrawal\Code\AoC\2022\Day8-2022\Input-Large.txt");
 
 var rows = lines.Length;
 var columns = lines[0].Length;
@@ -12,6 +14,8 @@ for (var x = 0; x < rows; x++)
         treeGrid[x, y] = int.Parse(lines[x][y].ToString());
 
 var visibleCount = 0;
+
+var timer = Stopwatch.StartNew();
 
 for (var x = 1; x < rows - 1; x++)
 {
@@ -28,19 +32,39 @@ for (var x = 1; x < rows - 1; x++)
 
         // check right
         for (var t = y + 1; t < columns; t++)
+        {
             currentTreeVisibleRight &= treeGrid[x, t] < currentTreeHeight;
+
+            if (!currentTreeVisibleRight)
+                break;
+        }
 
         // check left
         for (var t = y - 1; t >= 0; t--)
+        {
             currentTreeVisibleLeft &= treeGrid[x, t] < currentTreeHeight;
+
+            if (!currentTreeVisibleLeft)
+                break;
+        }
 
         // check top
         for (var t = x - 1; t >= 0; t--)
+        {
             currentTreeVisibleTop &= treeGrid[t, y] < currentTreeHeight;
+
+            if (!currentTreeVisibleTop)
+                break;
+        }
 
         // check below
         for (var t = x + 1; t < rows; t++)
+        {
             currentTreeVisibleBelow &= treeGrid[t, x] < currentTreeHeight;
+
+            if (!currentTreeVisibleBelow)
+                break;
+        }
 
         if (currentTreeVisibleBelow ||
             currentTreeVisibleLeft ||
@@ -50,4 +74,7 @@ for (var x = 1; x < rows - 1; x++)
     }
 }
 
+timer.Stop();
+
 Console.WriteLine(visibleCount + defaultVisibleTrees);
+Console.WriteLine(timer.Elapsed);
