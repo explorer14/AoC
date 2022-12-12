@@ -74,7 +74,76 @@ for (var x = 1; x < rows - 1; x++)
     }
 }
 
+var maxScenicScore = 0;
+for (var x = 1; x < rows - 1; x++)
+{
+    int currentTreeHeight;
+
+    for (var y = 1; y < columns - 1; y++)
+    {
+        currentTreeHeight = treeGrid[x, y];
+
+        // check right
+        var rightVisibleCount = 0;
+
+        for (var t = y + 1; t < columns; t++)
+        {
+            if (treeGrid[x, t] >= currentTreeHeight)
+            {
+                ++rightVisibleCount;
+                break;
+            }
+            else
+                ++rightVisibleCount;
+        }
+
+        // check left
+        var leftVisibleCount = 0;
+        for (var t = y - 1; t >= 0; t--)
+        {
+            if (treeGrid[x, t] >= currentTreeHeight)
+            {
+                ++leftVisibleCount;
+                break;
+            }
+            else
+                ++leftVisibleCount;
+        }
+
+        // check top
+        var topVisibleCount = 0;
+        for (var t = x - 1; t >= 0; t--)
+        {
+            if (treeGrid[t, y] >= currentTreeHeight)
+            {
+                ++topVisibleCount;
+                break;
+            }
+            else
+                ++topVisibleCount;
+        }
+
+        // check below
+        var belowVisibleCount = 0;
+        for (var t = x + 1; t < rows; t++)
+        {
+            if (treeGrid[t, y] >= currentTreeHeight)
+            {
+                ++belowVisibleCount;
+                break;
+            }
+            else
+                ++belowVisibleCount;
+        }
+
+        var scenicScoreForThisTree = topVisibleCount * belowVisibleCount * leftVisibleCount * rightVisibleCount;
+        if (scenicScoreForThisTree > maxScenicScore)
+            maxScenicScore = scenicScoreForThisTree;
+    }
+}
+
 timer.Stop();
 
 Console.WriteLine(visibleCount + defaultVisibleTrees);
+Console.WriteLine(maxScenicScore);
 Console.WriteLine(timer.Elapsed);
