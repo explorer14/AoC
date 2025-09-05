@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using FluentAssertions;
 using Xunit.Abstractions;
 
@@ -42,10 +43,16 @@ public class WhenCalculatingTotalDistanceBetweenLists(ITestOutputHelper testOutp
     public void RunAgainstActualInput()
     {
         var input = File.ReadAllText("day1.txt");
+        var timer1 = Stopwatch.StartNew();
         var totalDistance = CalculateTotalDistanceBetweenLists(input);
+        timer1.Stop();
+
+        var timer2 = Stopwatch.StartNew();
         var totalSimilarityScore = CalculateTotalSimilarityScore(input);
-        testOutputHelper.WriteLine($"Total Distance {totalDistance}");
-        testOutputHelper.WriteLine($"Total Simialrty {totalSimilarityScore}");
+        timer2.Stop();
+
+        testOutputHelper.WriteLine($"Total Distance {totalDistance} in {timer1.Elapsed.TotalMilliseconds} ms");
+        testOutputHelper.WriteLine($"Total Simialrty {totalSimilarityScore} in {timer2.Elapsed.TotalMilliseconds} ms");
     }
 
     private int CalculateTotalSimilarityScore(string input)
