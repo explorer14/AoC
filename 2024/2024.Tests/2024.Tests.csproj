@@ -8,6 +8,7 @@
     <IsPackable>false</IsPackable>
     <IsTestProject>true</IsTestProject>
     <UserSecretsId>67f23c30-b174-4cbd-b33a-1f3f4caca1ef</UserSecretsId>
+    <DefaultNamespace>Day1.Tests</DefaultNamespace>
   </PropertyGroup>
 
   <ItemGroup>
@@ -25,7 +26,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Content Include="day1.txt">
+    <Content Include="day*.txt">
         <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
 </ItemGroup>
