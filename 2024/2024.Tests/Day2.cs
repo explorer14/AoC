@@ -10,7 +10,7 @@ public class Day2(ITestOutputHelper testOutputHelper)
     [Theory]
     [InlineData("day2-example.txt")]
     [InlineData("day2-actual.txt")]
-    public void ShouldSolveExample(string inputFileName)
+    public void ShouldSolve(string inputFileName)
     {
         var lines = File.ReadAllLines(inputFileName);
         var reportsOfLevels = new List<List<int>>();
@@ -21,20 +21,16 @@ public class Day2(ITestOutputHelper testOutputHelper)
             reportsOfLevels.Add(
                 [.. line.Split(" ",
                     StringSplitOptions.RemoveEmptyEntries)
-                    .Select(x => int.Parse(x))]);
+                    .Select(int.Parse)]);
         }
 
         var timer = Stopwatch.StartNew();
+        //reportsOfLevels.Clear();
+        //reportsOfLevels.Add([48, 44 ,42, 41, 40, 41, 39, 35]);
 
         foreach (var report in reportsOfLevels)
         {
-            // if the level is all increasing or decreasing => safe
-            // AND
-            // if the delta between each adjacent pair of levels between 1 and 3 => safe
-
-            if ((AllIncreasingOrDecreasing(report) &&
-                DeltaBetweenAdjacentPairsWithinLimits(report)) ||
-                SafeAfterRemovingRedundantLevels(report))
+            if (IsReportSafe(report) || SafeAfterIgnoringSingleBadLevel(report))
             {
                 ++totalNumberOfSafeReports;
             }
@@ -45,12 +41,48 @@ public class Day2(ITestOutputHelper testOutputHelper)
         testOutputHelper.WriteLine($"Answer {totalNumberOfSafeReports} in {timer.Elapsed.TotalMilliseconds} ms");
     }
 
-    private bool SafeAfterRemovingRedundantLevels(List<int> report)
+    private bool IsReportSafe(List<int> report) =>
+        DeltaBetweenAdjacentPairsWithinLimits(report) &&
+        AllIncreasingOrDecreasing(report);
+
+    private bool SafeAfterIgnoringSingleBadLevel(List<int> report)
     {
         for (int i = 0; i < report.Count; i++)
         {
-            report[i]
+            if (IsIndexWithinBounds(i))
+            {
+                if (IsCurrentLevelBad(i))
+                {
+                    var reportWithoutBadLevel = report[..i].Concat(report[(i + 1)..report.Count]).ToList();
+                    
+                    if (IsReportSafe(reportWithoutBadLevel))
+                    {
+                        return true;
+                    }
+
+                    //break;
+                    return SafeAfterIgnoringSingleBadLevel(reportWithoutBadLevel);
+                }    
+            }
         }
+
+        return false;
+
+        bool IsCurrentLevelBetweenTwoSmallerOrEqualLevels(int index) => 
+            report[index] >= report[index - 1] && report[index] >= report[index + 1];
+        
+        bool IsCurrentLevelBetweenTwoLargerOrEqualLevels(int index) => 
+            report[index] <= report[index - 1] && report[index] <= report[index + 1];
+
+        bool IsCurrentLevelSameAsNextLevel(int index) => 
+            report[index] == report[index + 1];
+
+        bool IsCurrentLevelBad(int index) =>
+            IsCurrentLevelBetweenTwoSmallerOrEqualLevels(index) ||
+            IsCurrentLevelBetweenTwoLargerOrEqualLevels(index);
+
+        bool IsIndexWithinBounds(int index) => 
+            index - 1 >= 0 && index + 1 < report.Count;
     }
 
     private bool DeltaBetweenAdjacentPairsWithinLimits(List<int> report)
@@ -63,7 +95,7 @@ public class Day2(ITestOutputHelper testOutputHelper)
             {
                 var diff = Math.Abs(report[i] - report[i + 1]);
 
-                if (!(diff >= 1 && diff <= 3))
+                if (!(diff is >= 1 and <= 3))
                 {
                     deltaWithinLimits = false;
                     break;
@@ -83,8 +115,8 @@ public class Day2(ITestOutputHelper testOutputHelper)
         {
             if (i + 1 < report.Count)
             {
-                allIncreasing &= report[i] < report[i + 1];
-                allDecreasing &= report[i] > report[i + 1];
+                allIncreasing &= report[i] <= report[i + 1];
+                allDecreasing &= report[i] >= report[i + 1];
             }
         }
 
