@@ -46,10 +46,15 @@ public class Day3(ITestOutputHelper testOutputHelper)
             instructionBuffer += c;
             var (containsDont, containsDo) = ContainsDoOrDont(instructionBuffer);
 
+            // chop off preceding instructions to avoid duplicate calculation
+            // of any past mul instructions. don't and do only influence the subsequent string
+            // so we can safely chop-off everything before them. Its also important to
+            // sub-string from the first occurrence of don't/do to ensure I don't miss any
             if (containsDo)
-            {
                 instructionBuffer = ChopOffEverythingBeforeDo();
-            }
+            
+            if (containsDont)
+                instructionBuffer = ChopOffEverythingBeforeDont();
 
             shouldExecMul = !containsDont || containsDo; 
             var (isMulInstruction, mulInstructions) = ContainsMulInstruction(instructionBuffer);
@@ -62,9 +67,28 @@ public class Day3(ITestOutputHelper testOutputHelper)
         }
         return result;
 
-        string ChopOffEverythingBeforeDo() =>
-            instructionBuffer[instructionBuffer.IndexOf("do()",
-                StringComparison.InvariantCultureIgnoreCase)..instructionBuffer.Length];
+        string ChopOffEverythingBeforeDo()
+        {
+            var indexOfDo = instructionBuffer.IndexOf("do()",
+                StringComparison.InvariantCultureIgnoreCase);
+            
+            if (indexOfDo == -1)
+                return instructionBuffer;
+            
+            return instructionBuffer[indexOfDo..instructionBuffer.Length];
+        }
+
+
+        string ChopOffEverythingBeforeDont()
+        {
+            var indexOfDont = instructionBuffer.IndexOf("don't()",
+                StringComparison.InvariantCultureIgnoreCase);
+            
+            if (indexOfDont == -1)
+                return instructionBuffer;
+            
+            return instructionBuffer[indexOfDont..instructionBuffer.Length];
+        }
     }
 
     private (bool, string[]) ContainsMulInstruction(string instructionBuffer)
