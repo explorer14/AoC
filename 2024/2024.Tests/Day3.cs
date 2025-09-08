@@ -19,39 +19,52 @@ public class Day3(ITestOutputHelper testOutputHelper)
         testOutputHelper.WriteLine($"Answer {result} in {timer.Elapsed.TotalMilliseconds} ms");
     }
 
-    // private int ProcessMemory(string memory)
-    // {
-    //     var pattern = @"mul\(\d*,\d*\)";
-    //     var matches = Regex.Matches(memory, pattern);
-    //     
-    //     var result = 0;
-    //
-    //     foreach (Match match in matches)
-    //     {
-    //         result += Exec(match.Value);            
-    //     }
-    //
-    //     return result;
-    // }
+    private int ProcessMemory(string memory)
+    {
+        var pattern = @"mul\(\d*,\d*\)";
+        var matches = Regex.Matches(memory, pattern);
+        
+        var result = 0;
+    
+        foreach (Match match in matches)
+        {
+            result += Exec([match.Value]);            
+        }
+    
+        return result;
+    }
 
     private int ProcessMemory2(string memory)
     {
         var instructionBuffer = string.Empty;
         var result = 0;
+        // ReSharper disable once TooWideLocalVariableScope
+        var shouldExecMul = true;
 
         foreach (var c in memory)
         {
             instructionBuffer += c;
-            var isMulEnabled = IsMulEnabled(instructionBuffer);
+            var (containsDont, containsDo) = ContainsDoOrDont(instructionBuffer);
+
+            if (containsDo)
+            {
+                instructionBuffer = ChopOffEverythingBeforeDo();
+            }
+
+            shouldExecMul = !containsDont || containsDo; 
             var (isMulInstruction, mulInstructions) = ContainsMulInstruction(instructionBuffer);
 
-            if (isMulInstruction && isMulEnabled)
+            if (isMulInstruction && shouldExecMul)
             {
                 result += Exec(mulInstructions);
                 instructionBuffer = string.Empty;
             }
         }
         return result;
+
+        string ChopOffEverythingBeforeDo() =>
+            instructionBuffer[instructionBuffer.IndexOf("do()",
+                StringComparison.InvariantCultureIgnoreCase)..instructionBuffer.Length];
     }
 
     private (bool, string[]) ContainsMulInstruction(string instructionBuffer)
@@ -60,20 +73,15 @@ public class Day3(ITestOutputHelper testOutputHelper)
         var matches = Regex.Matches(instructionBuffer, pattern);
         return (matches.Count > 0, matches.Select(m => m.Value).ToArray());
     }
-
-    // find a way to determine when the flag should flip
-    // do -> don't => disabled
-    // don't -> do => enabled
-    // do -> do => enabled
-    // don't -> don't => disabled
-    private bool IsMulEnabled(string instructionBuffer)
+    
+    private (bool containsDont, bool containsDo) ContainsDoOrDont(string instructionBuffer)
     {
         var disablePattern = @"don't\(\)";
         var enablePattern = @"do\(\)";
         var disableMatch = Regex.Match(instructionBuffer, disablePattern);
         var enableMatch = Regex.Match(instructionBuffer, enablePattern);
         
-        return disableMatch.Success | enableMatch.Success;
+        return (disableMatch.Success, enableMatch.Success);
     }
 
     private int Exec(string[] mulInstructions)
